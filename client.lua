@@ -5,7 +5,7 @@ mid = module("mid_nitro", "config")
 local instalando = false
 local instalado = false
 local turbo = nil
-local carid = nil
+local CarroID = nil
 
 
 if mid.comando then 
@@ -17,10 +17,10 @@ if mid.comando then
                 pCDS = GetEntityCoords(ped)
                 veh = GetClosestVehicle(pCDS, 3.001, 0, 71)
                 local Engine = GetEntityBoneIndexByName(veh, 'engine')
-                local localMotor =  GetWorldPositionOfEntityBone(veh, Engine)
-                local dist = #(pCDS - localMotor)
+                local localEngine =  GetWorldPositionOfEntityBone(veh, Engine)
+                local dist = #(pCDS - localEngine)
                 if dist < 4 then
-                    DrawMarker(mid.TypeDraw, localMotor[1], localMotor[2], localMotor[3]+1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.7, 0.7, 0.7, mid.ColorR, mid.ColorG, mid.ColorB, 255, true, true, 2, true)
+                    DrawMarker(mid.TypeDraw, localEngine[1], localEngine[2], localEngine[3]+1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.7, 0.7, 0.7, mid.ColorR, mid.ColorG, mid.ColorB, 255, true, true, 2, true)
                     if dist < 2 then
                         if IsControlJustPressed(0, 38) and not instalado then
                             instalado = true
@@ -34,14 +34,14 @@ if mid.comando then
                             SetVehicleDoorOpen(veh, 4, 0, 0)
                             FreezeEntityPosition(ped, true)
                             FreezeEntityPosition(veh, true)
-                            TriggerEvent(mid.progress,5000,"COLOCANDO NITRO")
+                            TriggerEvent(mid.progress,5000,"INSERINDO NITRO")
                             SetTimeout(5000, function()
                                 PlaySoundFrontend(-1, "Lowrider_Upgrade", "Lowrider_Super_Mod_Garage_Sounds", 1)
                                 turbo = 100
-                                carid = veh
+                                CarroID = veh
                                 instalado = false
                                 instalando = false
-                                startnitro()
+                                nitro()
                                 ClearPedTasks(ped)
                                 SetVehicleDoorShut(veh, 4, 0)
                                 FreezeEntityPosition(ped, false)
@@ -63,10 +63,10 @@ else
                 pCDS = GetEntityCoords(ped)
                 veh = GetClosestVehicle(pCDS, 3.001, 0, 71)
                 local Engine = GetEntityBoneIndexByName(veh, 'engine')
-                local localMotor =  GetWorldPositionOfEntityBone(veh, Engine)
-                local dist = #(pCDS - localMotor)
+                local localEngine =  GetWorldPositionOfEntityBone(veh, Engine)
+                local dist = #(pCDS - localEngine)
                 if dist < 4 then
-                    DrawMarker(mid.TypeDraw, localMotor[1], localMotor[2], localMotor[3]+1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.7, 0.7, 0.7, mid.ColorR, mid.ColorG, mid.ColorB, 255, true, true, 2, true)
+                    DrawMarker(mid.TypeDraw, localEngine[1], localEngine[2], localEngine[3]+1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.7, 0.7, 0.7, mid.ColorR, mid.ColorG, mid.ColorB, 255, true, true, 2, true)
                     if dist < 2 then
                         if IsControlJustPressed(0, 38) and not instalado then
                             instalado = true
@@ -84,10 +84,10 @@ else
                             SetTimeout(5000, function()
                                 PlaySoundFrontend(-1, "Lowrider_Upgrade", "Lowrider_Super_Mod_Garage_Sounds", 1)
                                 turbo = 100
-                                carid = veh
+                                CarroID = veh
                                 instalado = false
                                 instalando = false
-                                startnitro()
+                                nitro()
                                 ClearPedTasks(ped)
                                 SetVehicleDoorShut(veh, 4, 0)
                                 FreezeEntityPosition(ped, false)
@@ -102,20 +102,20 @@ else
 end 
 
 
-function startnitro()
+function nitro()
     CreateThread(function()
         while turbo > 0 do
             Wait(1)
-            if IsControlPressed(0, 244) and GetEntitySpeed(carid) >= 1 and veh == carid then
-                SetVehicleCheatPowerIncrease(carid, 5.0)
-                ModifyVehicleTopSpeed(carid, 20.0)
-                FogoNoScape(carid, 0.5)
-                startnitro = true
+            if IsControlPressed(0, 254) and GetEntitySpeed(CarroID) >= 1 and veh == CarroID then
+                SetVehicleCheatPowerIncrease(CarroID, 5.0)
+                ModifyVehicleTopSpeed(CarroID, 20.0)
+                FogoNoScape(CarroID, 0.5)
+                TurboOn = true
                 MudarTela(true)
             else
-                SetVehicleCheatPowerIncrease(carid, 1.0)
-                ModifyVehicleTopSpeed(carid, 1.0)
-                startnitro = false
+                SetVehicleCheatPowerIncrease(CarroID, 1.0)
+                ModifyVehicleTopSpeed(CarroID, 1.0)
+                TurboOn = false
                 MudarTela(false)
             end
         end
@@ -125,7 +125,7 @@ function startnitro()
         while turbo > 0 do
             Wait(1)
 
-            if startnitro == true and GetEntitySpeed(carid) >= 1 and GetPedInVehicleSeat(carid, -1) then
+            if TurboOn == true and GetEntitySpeed(CarroID) >= 1 and GetPedInVehicleSeat(CarroID, -1) then
                 Wait(100)
                 turbo = turbo -1
             end
@@ -133,9 +133,9 @@ function startnitro()
     end)
 end
 
-function FogoNoScape(carid, longitude)
+function FogoNoScape(CarroID, Longitude)
 
-    local exhausts = {
+    local escapes = {
       "exhaust",
       "exhaust_2",
       "exhaust_3",
@@ -154,14 +154,14 @@ function FogoNoScape(carid, longitude)
       "exhaust_16"
     }
   
-    for k,v in ipairs(exhausts) do
+    for k,v in ipairs(escapes) do
         BoneEscape = v 
-        local escapeID = GetEntityBoneIndexByName(carid, BoneEscape)
+        local escapeID = GetEntityBoneIndexByName(CarroID, BoneEscape)
         if escapeID > -1 then
-            local Escape = GetWorldPositionOfEntityBone(carid, escapeID)
-            local localEscape = GetOffsetFromEntityGivenWorldCoords(carid, Escape)
+            local Escape = GetWorldPositionOfEntityBone(CarroID, escapeID)
+            local localEscape = GetOffsetFromEntityGivenWorldCoords(CarroID, Escape)
             UseParticleFxAssetNextCall('core')
-            StartParticleFxNonLoopedOnEntity('veh_backfire', carid, localEscape, 0.0, 0.0, 0.0, longitude, false, false, false)
+            StartParticleFxNonLoopedOnEntity('veh_backfire', CarroID, localEscape, 0.0, 0.0, 0.0, Longitude, false, false, false)
         end
     end
 end
